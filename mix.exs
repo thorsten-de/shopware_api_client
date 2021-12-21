@@ -24,7 +24,8 @@ defmodule ShopwareApiClient.MixProject do
     [
       # HTTP-Client für die Shopware-Integration
       {:tesla, "~>1.4"},
-      {:finch, "~>0.10"}
+      {:finch, "~>0.10"},
+      {:jason, "~>1.2"}
     ]
   end
 end
