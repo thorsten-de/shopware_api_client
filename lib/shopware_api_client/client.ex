@@ -47,7 +47,7 @@ defmodule ShopwareApiClient.Admin do
     end
   end
 
-  def search(config \\ @default_config, entity, opts \\ %{}) do
+  def search(config \\ @default_config, entity, opts) do
     result =
       config
       |> client()
