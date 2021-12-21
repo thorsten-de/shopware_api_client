@@ -21,6 +21,10 @@ defmodule ShopwareApiClient.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    []
+    [
+      # HTTP-Client für die Shopware-Integration
+      {:tesla, "~>1.4"},
+      {:finch, "~>0.10"}
+    ]
   end
 end
