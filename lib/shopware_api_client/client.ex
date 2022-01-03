@@ -1,12 +1,5 @@
 defmodule ShopwareApiClient.Admin do
-  @default_config [
-    base_url: "http://localhost/api",
-    credentials: %{
-      grant_type: "client_credentials",
-      client_id: "SWIABELTQ2VPTMLRVE1STHNYUG",
-      client_secret: "NnZ5UDdvcVg2dXNRV3NrYzR6bHJ4RlpTemZvZ2lvVEU2N0NPR1k"
-    }
-  ]
+  @default_config Application.fetch_env!(:shopware_api_client, :admin)
 
   @adapter {Tesla.Adapter.Finch, name: ShopwareFinch}
 
