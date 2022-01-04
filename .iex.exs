@@ -25,7 +25,7 @@ nadja = %{
     tcBerater: %{
       beraternummer: 999999,
       endkundennummer: 666666,
-      faktura_linked_at: DateTime.now!()
+      faktura_linked_at: NaiveDateTime.utc_now()
     },
   addresses: [
       %{
