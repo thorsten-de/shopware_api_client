@@ -2,7 +2,7 @@ defmodule ShopwareApiClient.Admin do
   @adapter {Tesla.Adapter.Finch, name: ShopwareFinch}
 
   def client() do
-    config = Application.fetch_env!(:shopware_api_client, :admin) |> IO.inspect()
+    config = Application.fetch_env!(:shopware_api_client, :admin)
 
     with {:ok, auth_token} <- authenticate(config) do
       [
