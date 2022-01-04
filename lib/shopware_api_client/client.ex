@@ -1,9 +1,9 @@
 defmodule ShopwareApiClient.Admin do
-  @default_config Application.fetch_env!(:shopware_api_client, :admin)
-
   @adapter {Tesla.Adapter.Finch, name: ShopwareFinch}
 
-  def client(config \\ @default_config) do
+  def client() do
+    config = Application.fetch_env!(:shopware_api_client, :admin)
+
     with {:ok, auth_token} <- authenticate(config) do
       [
         {Tesla.Middleware.BaseUrl, config[:base_url]},
@@ -15,7 +15,7 @@ defmodule ShopwareApiClient.Admin do
     end
   end
 
-  def authenticate(config \\ @default_config) do
+  def authenticate(config) do
     result =
       [
         {Tesla.Middleware.BaseUrl, config[:base_url]},
@@ -29,10 +29,9 @@ defmodule ShopwareApiClient.Admin do
     end
   end
 
-  def info(config \\ @default_config) do
+  def info() do
     result =
-      config
-      |> client()
+      client()
       |> Tesla.get("_info/version")
 
     with {:ok, %{body: %{"version" => version}}} <- result do
@@ -40,42 +39,40 @@ defmodule ShopwareApiClient.Admin do
     end
   end
 
-  defp search_api(config, entity, suffix, opts) do
-    config
-    |> client()
+  defp search_api(entity, suffix, opts) do
+    client()
     |> Tesla.post("/search#{suffix}/#{entity}", build_search_filter(opts))
   end
 
-  def search(config \\ @default_config, entity, opts) do
-    with {:ok, %{body: %{"data" => data}}} <- search_api(config, entity, "", opts) do
+  def search(entity, opts) do
+    with {:ok, %{body: %{"data" => data}}} <- search_api(entity, "", opts) do
       data
     end
   end
 
-  def search_ids(config \\ @default_config, entity, opts) do
-    with {:ok, %{body: %{"data" => data}}} <- search_api(config, entity, "-ids", opts) do
+  def search_ids(entity, opts) do
+    with {:ok, %{body: %{"data" => data}}} <- search_api(entity, "-ids", opts) do
       data
     end
   end
 
-  def get(config \\ @default_config, entity, opts) do
-    case search(config, entity, Map.merge(opts, %{limit: 1})) do
+  def get(entity, opts) do
+    case search(entity, Map.merge(opts, %{limit: 1})) do
       [item | _] -> item
       _ -> nil
     end
   end
 
-  def get_id(config \\ @default_config, entity, opts) do
-    case search_ids(config, entity, Map.merge(opts, %{limit: 1})) do
+  def get_id(entity, opts) do
+    case search_ids(entity, Map.merge(opts, %{limit: 1})) do
       [item | _] -> item
       _ -> nil
     end
   end
 
-  def create(config \\ @default_config, entity, opts) do
+  def create(entity, opts) do
     result =
-      config
-      |> client()
+      client()
       |> Tesla.post("/#{entity}", opts)
 
     with {:ok, %{body: body}} <- result do
