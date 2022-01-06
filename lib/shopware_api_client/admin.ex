@@ -29,6 +29,37 @@ defmodule ShopwareApiClient.Admin do
     end
   end
 
+  def authenticate(username, password) do
+    config = Application.fetch_env!(:shopware_api_client, :admin)
+
+    result =
+      [
+        {Tesla.Middleware.BaseUrl, config[:base_url]},
+        Tesla.Middleware.JSON
+      ]
+      |> Tesla.client(@adapter)
+      |> Tesla.post("/oauth/token", %{
+        client_id: "administration",
+        grant_type: "password",
+        scopes: "write",
+        username: username,
+        password: password
+      })
+
+    with {:ok,
+          %{
+            body: %{
+              "access_token" => token,
+              "refresh_token" => refresh_token,
+              "expires_in" => expires
+            }
+          }} <- result do
+      {:ok, %{access_token: token, refresh_token: refresh_token, expires_in: expires}}
+    else
+      _whatever -> :error
+    end
+  end
+
   def info() do
     result =
       client()
