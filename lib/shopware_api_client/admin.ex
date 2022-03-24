@@ -1,14 +1,14 @@
 defmodule ShopwareApiClient.Admin do
   @adapter {Tesla.Adapter.Finch, name: ShopwareFinch}
 
-  def client() do
+  def client(opts \\ []) do
     config = Application.fetch_env!(:shopware_api_client, :admin)
 
     with {:ok, auth_token} <- authenticate(config) do
       [
         {Tesla.Middleware.BaseUrl, config[:base_url]},
         {Tesla.Middleware.BearerAuth, token: auth_token},
-        {Tesla.Middleware.Headers, [{"accept", "application/json"}]},
+        {Tesla.Middleware.Headers,  [{"accept", "application/json"} | Keyword.get(opts, :headers, [])]},
         Tesla.Middleware.JSON
       ]
       |> Tesla.client(@adapter)
@@ -105,6 +105,33 @@ defmodule ShopwareApiClient.Admin do
     result =
       client()
       |> Tesla.post("/#{entity}", opts)
+
+    with {:ok, %{body: body}} <- result do
+      {:ok, body}
+    end
+  end
+
+    def update(entity, id, opts) do
+    result =
+      client()
+      |> Tesla.patch("/#{entity}/#{id}", opts)
+
+    with {:ok, %{body: body}} <- result do
+      {:ok, body}
+    end
+  end
+
+  def sync(operations) when is_list(operations) do
+    (for {entity, payload} <- operations, into: %{} do
+      {"write-#{entity}", %{entity: entity, action: :upsert, payload: payload}}
+    end)
+    |> sync
+  end
+
+  def sync(operations) when is_map(operations) do
+    result =
+      client(headers: [{"single-operation", "1"}, {"indexing-behaviour", "use-queue-indexing"}])
+      |> Tesla.post("/_action/sync", operations)
 
     with {:ok, %{body: body}} <- result do
       {:ok, body}
