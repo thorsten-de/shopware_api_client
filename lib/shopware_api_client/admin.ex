@@ -101,6 +101,17 @@ defmodule ShopwareApiClient.Admin do
     end
   end
 
+  def list(entity, opts \\ []) do
+    result =
+      client()
+      |> Tesla.get("/#{entity}", opts)
+
+    with {:ok, %{body: %{"data" => data}}} <- result do
+      {:ok, data}
+    end
+  end
+
+
   def create(entity, opts) do
     result =
       client()
